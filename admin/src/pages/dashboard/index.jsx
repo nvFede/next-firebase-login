@@ -3,13 +3,14 @@ import UserLayout from '@/components/templates/UserLayout'
 
 import React, { useContext, useEffect } from 'react'
 import { parseCookies } from 'nookies'
-import { AuthContext } from '@/context/authContext'
+import { AuthStateContext } from '@/context/authContext'
 
 const Dashboard = ({ token }) => {
-    const { state } = useContext(AuthContext)
-    console.log("🚀 ~ file: index.jsx:10 ~ Dashboard ~ state:", state)
+    const state = useContext(AuthStateContext)
+
+    console.log('🚀 ~ file: index.jsx:10 ~ Dashboard ~ state:', state)
     const { user } = state
-    console.log("🚀 ~ file: index.jsx:12 ~ Dashboard ~ user:", user)
+    console.log('🚀 ~ file: index.jsx:12 ~ Dashboard ~ user:', user)
 
     return (
         <div>

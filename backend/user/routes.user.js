@@ -5,11 +5,15 @@ import {
   register,
   login,
   getAllUsers,
-  currentUser
+  currentUser,
 } from "./controller.user.js";
-import { authCheck, registerCheck } from "./middleware.user.js";
+import {
+  authCheck,
+  registerCheck,
+  preventAdminCreation,
+} from "./middleware.user.js";
 
-router.post("/auth/login", authCheck, currentUser);
+router.post("/auth/login", preventAdminCreation, authCheck, currentUser);
 router.post("/auth/register", registerCheck, currentUser);
 
 router.get("/", getAllUsers);

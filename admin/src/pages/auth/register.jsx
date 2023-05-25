@@ -1,26 +1,30 @@
-import { useState, useContext } from 'react'
+import { useContext } from 'react'
 import { useRouter } from 'next/router'
-import { Button, CustomErrorMsg, Input, Label } from '@/components/atoms/'
-import { Field, Form, Formik } from 'formik'
+import { Button } from '@/components/atoms/'
+import { Form, Formik } from 'formik'
 import { AuthContext } from '@/context/authContext'
-import { useAuth } from '@/hooks/useAuth'
-import { registerValidationSchema } from '@/middlewares/registerValidationSchema'
+import { registerValidationSchema } from '@/middlewares/authMiddleware'
 import AuthCard from '@/components/organisms/AuthCard'
-import { REGISTER_SUCCESS, REGISTER_FAILURE } from '@/actions/authTypes'
 import { TextInput } from '@/components/molecules'
 
 const Register = () => {
-    //   const [error, setError] = useState(null);
     const router = useRouter()
-    const { register, loginWithGoogle, error } = useAuth() // get the register function from useAuth
-    const { dispatch } = useContext(AuthContext) // get the dispatch function from AuthContext
+    const { register, error, continueWithGoogle } = useContext(AuthContext) // get the dispatch function from AuthContext
 
     const submitForm = async (values, { setSubmitting }) => {
         const { email, password } = values
-        // Call the register function from useAuth
-        await register({ email, password })
+        // Call the register function from useContext
 
+        const response = await register({ email, password })
         setSubmitting(false)
+
+        // Check if response contains an error. If not, navigate to the dashboard.
+        if (!response.error) {
+
+            router.push('/dashboard')
+        } else {
+            console.log("🚀 ~ file: register.jsx:23 ~ submitForm ~ error:", response.error)
+        }
     }
 
     return (
@@ -75,7 +79,7 @@ const Register = () => {
                         <div className="flex border-t border-gray-100 mt-5 pt-5">
                             <Button
                                 className="bg-[#EA4335] w-full justify-center"
-                                onClick={loginWithGoogle}>
+                                onClick={continueWithGoogle}>
                                 Continue with Google
                             </Button>
                         </div>

@@ -1,8 +1,9 @@
-import React, { useReducer, useContext, useEffect } from 'react'
+import React, { useReducer, useCallback, useEffect, useState } from 'react'
 import { useAuth } from '@/hooks/useAuth'
 
 // Define your context
-export const AuthContext = React.createContext()
+export const AuthStateContext = React.createContext()
+export const AuthDispatchContext = React.createContext()
 
 // Define initial state
 const initialState = {
@@ -47,80 +48,54 @@ const reducer = (state, action) => {
 }
 
 // Create your provider
+const useSafeDispatch = dispatch => {
+    return useCallback(
+        async (asyncFunction, ...params) => {
+            try {
+                const result = await asyncFunction(...params)
+                dispatch({ type: AUTHENTICATED, payload: result })
+            } catch (error) {
+                dispatch({ type: ERROR, payload: error.message })
+            }
+        },
+        [dispatch],
+    )
+}
+
 export const AuthProvider = ({ children }) => {
     const [state, dispatch] = useReducer(reducer, initialState)
     const auth = useAuth()
+    const safeDispatch = useSafeDispatch(dispatch)
 
-    useEffect(() => {
-        ;(async () => {
-            dispatch({ type: LOADING })
-            try {
-                const user = await getCurrentUser()
-                if (user) {
-                    dispatch({ type: AUTHENTICATED, payload: user })
-                }
-            } catch (error) {
-                dispatch({ type: ERROR, payload: error.message })
-            }
-        })()
-    }, [])
+    // useEffect(() => {
+    //     safeDispatch(getCurrentUser)
+    // }, [safeDispatch])
 
-    const register = async (email, password) => {
-        dispatch({ type: LOADING })
-        try {
-            const user = await auth.register(email, password)
-            dispatch({ type: AUTHENTICATED, payload: user })
-        } catch (error) {
-            dispatch({ type: ERROR, payload: error.message })
-        }
-    }
+    const register = async (email, password) =>
+        safeDispatch(auth.register, email, password)
 
-    const login = async (email, password) => {
-        dispatch({ type: LOADING })
-        try {
-            const user = await auth.login(email, password)
-            dispatch({ type: AUTHENTICATED, payload: user })
-        } catch (error) {
-            dispatch({ type: ERROR, payload: error.message })
-        }
-    }
+    const login = async (email, password) =>
+        safeDispatch(auth.login, email, password)
 
-    const forgotPassword = async email => {
-        dispatch({ type: LOADING })
-        try {
-            await auth.forgotPassword(email)
-            // You might want to dispatch another action here to notify the user
-        } catch (error) {
-            dispatch({ type: ERROR, payload: error.message })
-        }
-    }
+    const continueWithGoogle = async () => safeDispatch(auth.continueWithGoogle)
 
-    const logout = async () => {
-        try {
-            await auth.logout()
-            dispatch({ type: SIGN_OUT })
-        } catch (error) {
-            dispatch({ type: ERROR, payload: error.message })
-        }
-    }
-    useEffect(() => {
-        (async () => {
-            dispatch({ type: LOADING })
-            try {
-                const user = await auth.getCurrentUser()
-                if (user) {
-                    dispatch({ type: AUTHENTICATED, payload: user })
-                }
-            } catch (error) {
-                dispatch({ type: ERROR, payload: error.message })
-            }
-        })()
-    }, [])
+    const forgotPassword = async email =>
+        safeDispatch(auth.forgotPassword, email)
+
+    const logout = async () => safeDispatch(auth.logout)
 
     return (
-        <AuthContext.Provider
-            value={{ state, register, login, forgotPassword, logout }}>
-            {children}
-        </AuthContext.Provider>
+        <AuthStateContext.Provider value={state}>
+            <AuthDispatchContext.Provider
+                value={{
+                    register,
+                    login,
+                    forgotPassword,
+                    logout,
+                    continueWithGoogle,
+                }}>
+                {children}
+            </AuthDispatchContext.Provider>
+        </AuthStateContext.Provider>
     )
 }

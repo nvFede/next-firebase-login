@@ -1,36 +1,23 @@
-import { useState, useEffect, useContext } from 'react'
-import { useRouter } from 'next/router'
-import { Button } from '@/components/atoms/'
+import { Button } from '@/components/atoms'
 import { TextInput } from '@/components/molecules'
-import {
-    AuthDispatchContext,
-    AuthStateContext,
-} from '@/context/authContext'
-import { Formik, Form, useFormik } from 'formik'
 import AuthCard from '@/components/organisms/AuthCard'
-import { loginValidationSchema } from '@/middlewares/authMiddleware'
+import { AuthContext } from '@/context/authContext'
+import { Form, Formik } from 'formik'
+import { useRouter } from 'next/router'
+import React, { useContext, useState } from 'react'
 
-const Login = () => {
-    const { login } = useContext(AuthDispatchContext)
-    const state = useContext(AuthStateContext)
-    console.log("🚀 ~ file: login.jsx:16 ~ Login ~ state:", state)
-
+const ForgotPassword = () => {
+    const [isSubmitting, setSubmitting] = useState(false)
+    const { forgotPassword } = useContext(AuthContext)
     const router = useRouter()
 
     const submitForm = async (values, { setSubmitting }) => {
-        const { email, password } = values
-
+        const { email } = values
         // Call the login function from useContext
-        const result = await login({ email, password })
-        console.log("🚀 ~ file: login.jsx:25 ~ Login ~ state:", state)
-
+        await forgotPassword(email)
 
         setSubmitting(false)
-        if (result?.error) {
-            console.log(result.error)
-        } else {
-            router.push('/dashboard')
-        }
+        router.push('/auth/login')
     }
 
     return (
@@ -38,9 +25,7 @@ const Login = () => {
             <Formik
                 initialValues={{
                     email: '',
-                    password: '',
                 }}
-                validationSchema={loginValidationSchema}
                 onSubmit={submitForm}>
                 {({ isSubmitting }) => (
                     <AuthCard>
@@ -56,15 +41,6 @@ const Login = () => {
                                 />
                             </div>
 
-                            <div className="mt-4">
-                                <TextInput
-                                    id="password"
-                                    type="password"
-                                    name="password"
-                                />
-                            </div>
-
-                            {state.error && <p>{state.error}</p>}
                             <div className="flex items-center justify-end mt-4">
                                 <Button type="submit" disabled={isSubmitting}>
                                     {isSubmitting ? 'Submitting...' : 'Login'}
@@ -78,4 +54,4 @@ const Login = () => {
     )
 }
 
-export default Login
+export default ForgotPassword

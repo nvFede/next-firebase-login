@@ -24,12 +24,12 @@ export const registerCheck = async (req, res, next) => {
     if (!user) {
       const name = firebaseUser.name || firebaseUser.email.split("@")[0];
       const photo = firebaseUser.picture || "/avatar.png";
-      const role = "admin";
+      // const role = "admin";
       user = await new User({
         firebaseUid: firebaseUser.uid,
         email: firebaseUser.email,
         name,
-        role,
+        // role,
         photo,
       }).save();
     }
@@ -59,4 +59,15 @@ export const checkRole = (roles) => {
     // If the user is authenticated and has the required role, call the next middleware/controller
     next();
   };
+};
+
+// Example middleware for preventing creation of admin users
+export const preventAdminCreation = (req, res, next) => {
+  const { role } = req.body;
+
+  if (role === 'admin') {
+    return res.status(400).json({ error: 'Creating admin users is not allowed' });
+  }
+
+  next();
 };
