@@ -1,3 +1,4 @@
+export { ErrorMsg } from './ErrorMsg'
 export { CustomErrorMsg } from './CustomErrorMsg'
 export { Input } from './Input'
 export { InputError } from './InputError'

@@ -1,29 +1,37 @@
 import { useState, useEffect, useContext } from 'react'
 import { useRouter } from 'next/router'
-import { Button } from '@/components/atoms/'
+import { Button, ErrorMsg } from '@/components/atoms/'
 import { TextInput } from '@/components/molecules'
-import {
-    AuthDispatchContext,
-    AuthStateContext,
-} from '@/context/authContext'
+import { AuthDispatchContext, AuthStateContext } from '@/context/authContext'
 import { Formik, Form, useFormik } from 'formik'
 import AuthCard from '@/components/organisms/AuthCard'
 import { loginValidationSchema } from '@/middlewares/authMiddleware'
 
 const Login = () => {
-    const { login } = useContext(AuthDispatchContext)
+    const { login, continueWithGoogle } = useContext(AuthDispatchContext)
     const state = useContext(AuthStateContext)
-    console.log("🚀 ~ file: login.jsx:16 ~ Login ~ state:", state)
+    // console.log("🚀 ~ file: login.jsx:16 ~ Login ~ state:", state)
 
     const router = useRouter()
+
+    const googleLogin = async () => {
+        const response =  await continueWithGoogle()
+
+        if (googleLogin?.error) {
+            console.log(result.error)
+        } else {
+            router.push('/dashboard')
+        }
+
+
+    }
 
     const submitForm = async (values, { setSubmitting }) => {
         const { email, password } = values
 
         // Call the login function from useContext
         const result = await login({ email, password })
-        console.log("🚀 ~ file: login.jsx:25 ~ Login ~ state:", state)
-
+        // console.log("🚀 ~ file: login.jsx:25 ~ Login ~ state:", state)
 
         setSubmitting(false)
         if (result?.error) {
@@ -64,13 +72,23 @@ const Login = () => {
                                 />
                             </div>
 
-                            {state.error && <p>{state.error}</p>}
+                            {state?.user?.error && (
+                                <ErrorMsg message={state.user.error} />
+                            )}
                             <div className="flex items-center justify-end mt-4">
                                 <Button type="submit" disabled={isSubmitting}>
                                     {isSubmitting ? 'Submitting...' : 'Login'}
                                 </Button>
                             </div>
                         </Form>
+
+                        <div className="flex border-t border-gray-100 mt-5 pt-5">
+                            <Button
+                                className="bg-[#EA4335] w-full justify-center"
+                                onClick={googleLogin}>
+                                Continue with Google
+                            </Button>
+                        </div>
                     </AuthCard>
                 )}
             </Formik>

@@ -1,22 +1,22 @@
 import admin from "../config/firebase.cjs";
 import User from "./model.user.js";
 
-export const authCheck = async (req, res, next) => {
-  try {
-    const firebaseUser = await admin.auth().verifyIdToken(req.headers.token);
-    // Attach firebase user to request object
-    let user = await User.findOne({ email: firebaseUser.email });
-    req.currentUser = user;
-    next();
-  } catch (err) {
-    res.status(401).json({
-      err: "Unable to verify token. Token may be invalid or expired.",
-      msg: err.message,
-    });
-  }
-};
+// export const authCheck = async (req, res, next) => {
+//   try {
+//     const firebaseUser = await admin.auth().verifyIdToken(req.headers.token);
+//     // Attach firebase user to request object
+//     let user = await User.findOne({ email: firebaseUser.email });
+//     req.currentUser = user;
+//     next();
+//   } catch (err) {
+//     res.status(401).json({
+//       err: "Unable to verify token. Token may be invalid or expired.",
+//       msg: err.message,
+//     });
+//   }
+// };
 
-export const registerCheck = async (req, res, next) => {
+export const authCheck = async (req, res, next) => {
   try {
     const firebaseUser = await admin.auth().verifyIdToken(req.headers.token);
     let user = await User.findOne({ email: firebaseUser.email });

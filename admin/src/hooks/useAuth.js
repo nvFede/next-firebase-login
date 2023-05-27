@@ -27,22 +27,22 @@ export const useAuth = ({ redirectIfAuthenticated } = {}) => {
     const handleUserAuth =
         endpoint =>
         async ({ email, password }) => {
+            destroyToken() // Clear existing token
             try {
                 const userCredential = await (endpoint === 'register'
                     ? createUserWithEmailAndPassword(auth, email, password)
                     : signInWithEmailAndPassword(auth, email, password))
                 const user = userCredential.user
                 const token = await getUserToken(user)
-                destroyToken()
+
                 const response = await axiosAuth.post(`/auth/${endpoint}`, {})
                 setToken(token)
-                return user //return user directly
+                return response.data //return user from mongodb
             } catch (error) {
                 setError(error.message)
-                throw error; //throw error directly instead of returning an object
+                throw error //throw error directly instead of returning an object
             }
         }
-
 
     const register = withErrorHandler(handleUserAuth('register'))
     const login = withErrorHandler(handleUserAuth('login'))
@@ -51,7 +51,12 @@ export const useAuth = ({ redirectIfAuthenticated } = {}) => {
         const provider = new GoogleAuthProvider()
         const userCredential = await signInWithPopup(auth, provider)
         const user = userCredential.user
-        return handleUserAuth(user, 'register')
+        // return handleUserAuth(user, 'register')
+        const token = await getUserToken(user)
+
+        const response = await axiosAuth.post(`/auth/register`, {})
+        setToken(token)
+        return response.data //return user from mongodb
     })
 
     const forgotPassword = withErrorHandler(async email => {
@@ -67,7 +72,7 @@ export const useAuth = ({ redirectIfAuthenticated } = {}) => {
 
     const logout = withErrorHandler(async () => {
         await signOut(auth)
-        destroyToken() // clear the token when the user logs out
+        destroyToken()
     })
 
     return {

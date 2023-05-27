@@ -2,28 +2,32 @@ import { useContext } from 'react'
 import { useRouter } from 'next/router'
 import { Button } from '@/components/atoms/'
 import { Form, Formik } from 'formik'
-import { AuthContext } from '@/context/authContext'
+import { AuthDispatchContext, AuthStateContext } from '@/context/authContext'
 import { registerValidationSchema } from '@/middlewares/authMiddleware'
 import AuthCard from '@/components/organisms/AuthCard'
 import { TextInput } from '@/components/molecules'
 
 const Register = () => {
     const router = useRouter()
-    const { register, error, continueWithGoogle } = useContext(AuthContext) // get the dispatch function from AuthContext
+    //    const { register, error, continueWithGoogle } = useContext(AuthContext) // get the dispatch function from AuthContext
+
+    const { register, continueWithGoogle } = useContext(AuthDispatchContext)
+    const state = useContext(AuthStateContext)
+    console.log('🚀 ~ file: login.jsx:16 ~ Login ~ state:', state)
 
     const submitForm = async (values, { setSubmitting }) => {
         const { email, password } = values
         // Call the register function from useContext
 
-        const response = await register({ email, password })
+        // Call the login function from useContext
+        const result = await register({ email, password })
+        console.log('🚀 ~ file: login.jsx:25 ~ REGISTER ~ state:', state)
+
         setSubmitting(false)
-
-        // Check if response contains an error. If not, navigate to the dashboard.
-        if (!response.error) {
-
-            router.push('/dashboard')
+        if (result?.error) {
+            console.log(result.error)
         } else {
-            console.log("🚀 ~ file: register.jsx:23 ~ submitForm ~ error:", response.error)
+            router.push('/dashboard')
         }
     }
 
@@ -73,7 +77,7 @@ const Register = () => {
                                 </Button>
                             </div>
 
-                            {error && <p>{error}</p>}
+                            {/* {state.user.error && <p>{state.user.error}</p>} */}
                         </Form>
 
                         <div className="flex border-t border-gray-100 mt-5 pt-5">

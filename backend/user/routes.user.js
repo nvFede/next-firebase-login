@@ -9,12 +9,12 @@ import {
 } from "./controller.user.js";
 import {
   authCheck,
-  registerCheck,
+  // registerCheck,
   preventAdminCreation,
 } from "./middleware.user.js";
 
-router.post("/auth/login", preventAdminCreation, authCheck, currentUser);
-router.post("/auth/register", registerCheck, currentUser);
+router.post("/auth/login", authCheck, currentUser);
+router.post("/auth/register", authCheck, currentUser);
 
 router.get("/", getAllUsers);
 

@@ -1,14 +1,14 @@
 import { Button } from '@/components/atoms'
 import { TextInput } from '@/components/molecules'
 import AuthCard from '@/components/organisms/AuthCard'
-import { AuthContext } from '@/context/authContext'
+import { AuthContext, AuthDispatchContext } from '@/context/authContext'
 import { Form, Formik } from 'formik'
 import { useRouter } from 'next/router'
 import React, { useContext, useState } from 'react'
 
 const ForgotPassword = () => {
     const [isSubmitting, setSubmitting] = useState(false)
-    const { forgotPassword } = useContext(AuthContext)
+    const { forgotPassword } = useContext(AuthDispatchContext)
     const router = useRouter()
 
     const submitForm = async (values, { setSubmitting }) => {
